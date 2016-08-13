@@ -4,6 +4,7 @@
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
         <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
         <!--View Controller-->
@@ -18,25 +19,27 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="qtY-H5-ilE" customClass="GraphView" customModule="BCEXRate" customModuleProvider="target">
+                            <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="qtY-H5-ilE" customClass="GraphView" customModule="BCEXRate" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="68" width="600" height="464"/>
                                 <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="600" id="02Q-3e-LWk"/>
+                                    <constraint firstAttribute="width" relation="lessThanOrEqual" constant="600" id="02Q-3e-LWk"/>
                                     <constraint firstAttribute="width" secondItem="qtY-H5-ilE" secondAttribute="height" multiplier="75:58" id="2Nc-dH-upX"/>
                                 </constraints>
                                 <userDefinedRuntimeAttributes>
                                     <userDefinedRuntimeAttribute type="color" keyPath="startColor">
-                                        <color key="value" red="0.85353642702102661" green="0.94088238477706909" blue="0.95541316270828247" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <color key="value" red="0.240235835313797" green="0.26546144485473633" blue="0.94162392616271973" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     </userDefinedRuntimeAttribute>
                                     <userDefinedRuntimeAttribute type="color" keyPath="endColor">
-                                        <color key="value" red="0.61076414585113525" green="0.55995088815689087" blue="0.91918915510177612" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <color key="value" red="0.85309022665023804" green="0.22662615776062012" blue="0.19651037454605103" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
                             </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
+                            <constraint firstItem="qtY-H5-ilE" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="-20" id="0uB-4z-fr5"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="qtY-H5-ilE" secondAttribute="trailing" constant="-20" id="gWj-9O-7XT"/>
                             <constraint firstItem="qtY-H5-ilE" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="uFG-8g-U6D"/>
                             <constraint firstItem="qtY-H5-ilE" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="vJf-qo-fWB"/>
                         </constraints>

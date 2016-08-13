@@ -15,6 +15,7 @@
 		C158881B1D5E17A200200D34 /* BCEXRateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C158881A1D5E17A200200D34 /* BCEXRateTests.swift */; };
 		C15888261D5E17A200200D34 /* BCEXRateUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C15888251D5E17A200200D34 /* BCEXRateUITests.swift */; };
 		C15888341D5E17DD00200D34 /* CoinDeskClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C15888331D5E17DD00200D34 /* CoinDeskClient.swift */; };
+		C15888381D5F2F4900200D34 /* GraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C15888371D5F2F4900200D34 /* GraphView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,6 +50,7 @@
 		C15888251D5E17A200200D34 /* BCEXRateUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BCEXRateUITests.swift; sourceTree = "<group>"; };
 		C15888271D5E17A200200D34 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C15888331D5E17DD00200D34 /* CoinDeskClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoinDeskClient.swift; sourceTree = "<group>"; };
+		C15888371D5F2F4900200D34 /* GraphView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GraphView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -106,6 +108,7 @@
 				C158880E1D5E17A200200D34 /* LaunchScreen.storyboard */,
 				C15888111D5E17A200200D34 /* Info.plist */,
 				C15888331D5E17DD00200D34 /* CoinDeskClient.swift */,
+				C15888371D5F2F4900200D34 /* GraphView.swift */,
 			);
 			path = BCEXRate;
 			sourceTree = "<group>";
@@ -262,6 +265,7 @@
 				C15888341D5E17DD00200D34 /* CoinDeskClient.swift in Sources */,
 				C15888081D5E17A200200D34 /* ViewController.swift in Sources */,
 				C15888061D5E17A200200D34 /* AppDelegate.swift in Sources */,
+				C15888381D5F2F4900200D34 /* GraphView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

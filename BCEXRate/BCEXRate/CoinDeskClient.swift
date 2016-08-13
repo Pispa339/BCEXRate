@@ -10,11 +10,11 @@ import Foundation
 
 class CoinDeskClient {
     
-    let baseUrl:String = "https://api.coindesk.com/v1/bpi"
+    let baseUrl:String = "https://api.coindesk.com/v1/bpi/"
     let currencyParam:String = "?currency=EUR"
     let dateFormat = "yyyy-MM-dd"
     
-    func fetchLast28() {
+    func fetchLast28(completion: [String:Float] ->()) {
         
         let dateFormatter = NSDateFormatter()
         dateFormatter.dateFormat = dateFormat
@@ -25,20 +25,23 @@ class CoinDeskClient {
         let toDate = NSDate().dateByAddingTimeInterval(-1*24*60*60)
         let toDateString:String = dateFormatter.stringFromDate(toDate)
         
-        let paramsString = "/historical/close.json?\(currencyParam)&start=\(fromDateString)&end=\(toDateString)"
+        let paramsString = "historical/close.json?\(currencyParam)&start=\(fromDateString)&end=\(toDateString)"
         
         let urlString = baseUrl + paramsString
         
         let url:NSURL = NSURL(string: urlString)!
         
-        getRequestWithUrl(url)
+        getRequestWithUrl(url) { bpis in
+            completion(bpis)
+        }
     }
     
     func fetchCurrent() {
-        let current:String = "currentprice/EUR.json"
+        let urlString = "\(baseUrl)currentprice/EUR.json?"
+        let url:NSURL = NSURL(string: urlString)!
     }
     
-    func getRequestWithUrl(url: NSURL) {
+    func getRequestWithUrl(url: NSURL, completion: [String:Float] ->()) {
         
         let session = NSURLSession.sharedSession()
         
@@ -55,8 +58,10 @@ class CoinDeskClient {
             if (statusCode == 200) {
                 do {
                     
-                    let json = try NSJSONSerialization.JSONObjectWithData(data!, options:.AllowFragments)
-                    let perse = 0
+                    let json = try NSJSONSerialization.JSONObjectWithData(data!, options:NSJSONReadingOptions()) as? [String : AnyObject]
+                    let bpis = json!["bpi"] as? [String : Float]
+                    
+                    completion(bpis!)
                     
                 } catch {
                     print("Error fetching JSON")

@@ -10,13 +10,18 @@ import UIKit
 
 class ViewController: UIViewController {
 
+    @IBOutlet weak var graphView: GraphView!
+
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
         let cdClient:CoinDeskClient = CoinDeskClient()
         
-        cdClient.fetchLast28()
+        cdClient.fetchLast28() { bpis in
+            
+        }
     }
 
     override func didReceiveMemoryWarning() {

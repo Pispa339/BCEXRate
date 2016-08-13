@@ -10,16 +10,11 @@ import Foundation
 
 class CoinDeskClient {
     
-    let baseUrl:String = "http(s)://api.coindesk.com/v1"
-    let dateFormat = "YYYY-MM-DD"
+    let baseUrl:String = "https://api.coindesk.com/v1/bpi"
+    let currencyParam:String = "?currency=EUR"
+    let dateFormat = "yyyy-MM-dd"
     
-    func fetchData() {
-        let url:NSURL = NSURL(string: baseUrl)!
-        let session = NSURLSession.sharedSession()
-        
-        let request = NSMutableURLRequest(URL: url)
-        request.HTTPMethod = "GET"
-        request.cachePolicy = NSURLRequestCachePolicy.UseProtocolCachePolicy
+    func fetchLast28() {
         
         let dateFormatter = NSDateFormatter()
         dateFormatter.dateFormat = dateFormat
@@ -27,7 +22,29 @@ class CoinDeskClient {
         let fromDate = NSDate().dateByAddingTimeInterval(-28*24*60*60)
         let fromDateString = dateFormatter.stringFromDate(fromDate)
         
-        let toDateString:String = dateFormatter.stringFromDate(NSDate())
+        let toDate = NSDate().dateByAddingTimeInterval(-1*24*60*60)
+        let toDateString:String = dateFormatter.stringFromDate(toDate)
+        
+        let paramsString = "/historical/close.json?\(currencyParam)&start=\(fromDateString)&end=\(toDateString)"
+        
+        let urlString = baseUrl + paramsString
+        
+        let url:NSURL = NSURL(string: urlString)!
+        
+        getRequestWithUrl(url)
+    }
+    
+    func fetchCurrent() {
+        let current:String = "currentprice/EUR.json"
+    }
+    
+    func getRequestWithUrl(url: NSURL) {
+        
+        let session = NSURLSession.sharedSession()
+        
+        let request = NSMutableURLRequest(URL: url)
+        request.HTTPMethod = "GET"
+        request.cachePolicy = NSURLRequestCachePolicy.UseProtocolCachePolicy
         
         let task = session.dataTaskWithRequest(request) {
             (data, response, error) -> Void in
@@ -37,9 +54,10 @@ class CoinDeskClient {
             
             if (statusCode == 200) {
                 do {
-                
-                let json = try NSJSONSerialization.JSONObjectWithData(data!, options:.MutableContainers)
-             
+                    
+                    let json = try NSJSONSerialization.JSONObjectWithData(data!, options:.AllowFragments)
+                    let perse = 0
+                    
                 } catch {
                     print("Error fetching JSON")
                 }
@@ -47,14 +65,13 @@ class CoinDeskClient {
         }
         
         task.resume()
-//        let request = NSURLRequest(URL: url!, cachePolicy: .UseProtocolCachePolicy, timeoutInterval: 20)
-//        NSURLConnection.sendAsynchronousRequest(request, queue: NSOperationQueue(), completionHandler:{
-//            (response: NSURLResponse?, data: NSData?, error: NSError?)-> Void in
-//            
-//            // Get data as string
-//            let str = NSString(data: data!, encoding: NSUTF8StringEncoding)
-//            print(str)
-//            })
     }
+    
+//    func getCurrenciesFromDict(dict: [String: AnyObject]) -> [String: String] {
+//        
+//        
+//        return dict
+//    }
+    
     
 }

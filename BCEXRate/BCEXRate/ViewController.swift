@@ -7,31 +7,38 @@
 //
 
 import UIKit
+import Charts
 
 class ViewController: UIViewController {
 
     @IBOutlet weak var graphView: GraphView!
-
+    @IBOutlet weak var lineChartView: LineChartView!
     
+    var graphValues = [Double]()
+    var graphDataPoints = [String]()
+    
+    let valuesCacheKey:String = "graphValues"
+    let dataPointsCacheKey:String = "graphDataPoints"
+    
+    let cdClient:CoinDeskClient = CoinDeskClient()
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "storeDataBeforeQuitting", name: UIApplicationDidEnterBackgroundNotification, object: nil)
+
+        let defaults = NSUserDefaults.standardUserDefaults()
+        graphValues = (defaults.objectForKey(valuesCacheKey) as? [Double])!
+        graphDataPoints = defaults.objectForKey(dataPointsCacheKey) as? [String]!
+        setUpAndPopulateChart(graphDataPoints, values: graphValues)
+        //cdClient = CoinDeskClient()
         // Do any additional setup after loading the view, typically from a nib.
+        lineChartView.noDataText = "No data to show"
+        lineChartView.noDataTextDescription = "Fetching data from the server..."
         
-        let cdClient:CoinDeskClient = CoinDeskClient()
-        
-        cdClient.fetchLast28() { bpis in
-            let sortedKeys = Array(bpis.keys).sort(<)
-            var sortedValues = [Float]()
-            
-            for key in sortedKeys {
-                sortedValues.append(bpis[key]!)
-            }
-            
-            //self.graphView.populateGraphWithValues(sortedValues)
-            //self.graphView.drawRect(graphView.rect)
-            self.setupGraphDisplay(sortedValues)
-        }
+        fetchAndShowData()
+        //start updating the last value
+        let timer = NSTimer.scheduledTimerWithTimeInterval(10, target: self, selector: #selector(self.fetchAndUpdateCurrent), userInfo: nil, repeats: true)
     }
 
     override func didReceiveMemoryWarning() {
@@ -39,57 +46,84 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
-    func setupGraphDisplay(values: [Float]) {
-        
-        //Use 7 days for graph - can use any number,
-        //but labels and sample data are set up for 7 days
-        let noOfDays:Int = 27
-        
-        //1 - replace last day with today's actual data
-        //graphView.graphPoints[graphView.graphPoints.count-1] = values
-        graphView.graphPoints = values;
-        
-        //2 - indicate that the graph needs to be redrawn
-        graphView.setNeedsDisplay()
-        
-        //maxLabel.text = "\(maxElement(graphView.graphPoints))"
-        
-        //3 - calculate average from graphPoints
-//        let average = graphView.graphPoints.reduce(0, combine: +)
-//            / graphView.graphPoints.count
-//        averageWaterDrunk.text = "\(average)"
-        
-        //set up labels
-        //day of week labels are set up in storyboard with tags
-        //today is last day of the array need to go backwards
-        
-        //4 - get today's day number
-//        let dateFormatter = NSDateFormatter()
-//        let calendar = NSCalendar.currentCalendar()
-//        let componentOptions:NSCalendarUnit = .CalendarUnitWeekday
-//        let components = calendar.components(componentOptions,
-//                                             fromDate: NSDate())
-//        var weekday = components.weekday
-        
-        let days = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12",
-                    "13", "14", "15", "16", "17", "18", "19", "20", "21", "22",
-                    "23", "24", "25", "26", "27"]
-        
-//        //5 - set up the day name labels with correct day
-//        for i in reverse(1...days.count) {
-//            if let labelView = graphView.viewWithTag(i) as? UILabel {
-//                if weekday == 7 {
-//                    weekday = 0
-//                }
-//                labelView.text = days[weekday--]
-//                if weekday < 0 {
-//                    weekday = days.count - 1
-//                }
-//            }
-//        }
+    func storeDataBeforeQuitting() {
+        let defaults = NSUserDefaults.standardUserDefaults()
+        defaults.setObject(self.graphValues, forKey: valuesCacheKey)
+        defaults.setObject(self.graphDataPoints, forKey: dataPointsCacheKey)
     }
-
-
-
+    
+    func fetchAndShowData() {
+        
+        cdClient.fetchLast28() { bpis in
+            let sortedKeys = Array(bpis.keys).sort(<)
+            
+            for key in sortedKeys {
+                self.graphValues.append(bpis[key]!)
+            }
+            
+            //make the dateformat more suitable for graph's use
+            let dateFormatter = NSDateFormatter()
+            for dateString in sortedKeys {
+                dateFormatter.dateFormat = Constants.DateFormatForApi
+                let dateAsDate = dateFormatter.dateFromString(dateString)
+                
+                dateFormatter.dateFormat = "dd.MM"
+                let newDateString = dateFormatter.stringFromDate(dateAsDate!)
+                self.graphDataPoints.append(newDateString)
+            }
+            
+            //add todays data as well
+            self.cdClient.fetchCurrent() { rate in
+                let thisDateString = dateFormatter.stringFromDate(NSDate())
+                self.graphDataPoints.append(thisDateString)
+                self.graphValues.append(rate["rate_float"]!)
+                
+                self.setUpAndPopulateChart(self.graphDataPoints, values: self.graphValues)
+            }
+        }
+    }
+    
+    func fetchAndUpdateCurrent() {
+        cdClient.fetchCurrent() { rate in
+            let dataset = self.lineChartView.data?.getDataSetByIndex(0)
+            let index = dataset?.entryCount
+            let valueToAdd = rate["rate_float"]
+            let entry = ChartDataEntry(value: valueToAdd!, xIndex: index!)
+            dataset?.removeLast()
+            dataset?.addEntry(entry)
+            //self.lineChartView.data.
+            self.graphValues[self.graphValues.count] = valueToAdd!
+            self.lineChartView.notifyDataSetChanged()
+        }
+    }
+    
+    func setUpAndPopulateChart(dataPoints: [String], values: [Double]) {
+        
+        lineChartView.autoScaleMinMaxEnabled = true
+        lineChartView.descriptionText = "BPI's of the last 28 days"
+        lineChartView.animate(xAxisDuration: 2.0, yAxisDuration: 2.0)
+        
+        var dataEntries: [ChartDataEntry] = []
+        
+        for i in 0..<dataPoints.count {
+            let dataEntry = ChartDataEntry(value: values[i], xIndex: i)
+            dataEntries.append(dataEntry)
+        }
+        
+        var colors: [UIColor] = []
+        
+        for _ in 0..<dataPoints.count {
+            let red = Double(arc4random_uniform(256))
+            let green = Double(arc4random_uniform(256))
+            let blue = Double(arc4random_uniform(256))
+            
+            let color = UIColor(red: CGFloat(red/255), green: CGFloat(green/255), blue: CGFloat(blue/255), alpha: 1)
+            colors.append(color)
+        }
+        
+        let lineChartDataSet = LineChartDataSet(yVals: dataEntries, label: "BPI")
+        let lineChartData = LineChartData(xVals: dataPoints, dataSet: lineChartDataSet)
+        lineChartView.data = lineChartData
+    }
+    
 }
-

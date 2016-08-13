@@ -12,14 +12,13 @@ class CoinDeskClient {
     
     let baseUrl:String = "https://api.coindesk.com/v1/bpi/"
     let currencyParam:String = "?currency=EUR"
-    let dateFormat = "yyyy-MM-dd"
     
-    func fetchLast28(completion: [String:Float] ->()) {
+    func fetchLast28(completion: [String:Double] ->()) {
         
         let dateFormatter = NSDateFormatter()
-        dateFormatter.dateFormat = dateFormat
+        dateFormatter.dateFormat = Constants.DateFormatForApi
         
-        let fromDate = NSDate().dateByAddingTimeInterval(-28*24*60*60)
+        let fromDate = NSDate().dateByAddingTimeInterval(-27*24*60*60)
         let fromDateString = dateFormatter.stringFromDate(fromDate)
         
         let toDate = NSDate().dateByAddingTimeInterval(-1*24*60*60)
@@ -31,17 +30,21 @@ class CoinDeskClient {
         
         let url:NSURL = NSURL(string: urlString)!
         
-        getRequestWithUrl(url) { bpis in
+        getRequestWithUrl(url, history: true) { bpis in
             completion(bpis)
         }
     }
     
-    func fetchCurrent() {
+    func fetchCurrent(completion: [String:Double] ->()) {
         let urlString = "\(baseUrl)currentprice/EUR.json?"
         let url:NSURL = NSURL(string: urlString)!
+        
+        getRequestWithUrl(url, history: false) { rate in
+            completion(rate)
+        }
     }
     
-    func getRequestWithUrl(url: NSURL, completion: [String:Float] ->()) {
+    func getRequestWithUrl(url: NSURL, history: Bool, completion: [String:Double] ->()) {
         
         let session = NSURLSession.sharedSession()
         
@@ -58,10 +61,22 @@ class CoinDeskClient {
             if (statusCode == 200) {
                 do {
                     
-                    let json = try NSJSONSerialization.JSONObjectWithData(data!, options:NSJSONReadingOptions()) as? [String : AnyObject]
-                    let bpis = json!["bpi"] as? [String : Float]
+                    let json = try NSJSONSerialization.JSONObjectWithData(data!,
+                                options:NSJSONReadingOptions()) as? [String : AnyObject]
                     
-                    completion(bpis!)
+                    if(history) {
+                        let bpis = json!["bpi"] as? [String : Double]
+                        completion(bpis!)
+                    }
+                    else {
+                        let bpiDict = json!["bpi"] as? [String : AnyObject]
+                        let eurBpiDict = bpiDict!["EUR"] as? [String : AnyObject]
+                        let rate = eurBpiDict!["rate_float"] as! Double
+                        let rateDict = ["rate_float" : rate]
+                        completion(rateDict)
+                    }
+                    
+                    
                     
                 } catch {
                     print("Error fetching JSON")

@@ -16,7 +16,6 @@
 		C158881B1D5E17A200200D34 /* BCEXRateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C158881A1D5E17A200200D34 /* BCEXRateTests.swift */; };
 		C15888261D5E17A200200D34 /* BCEXRateUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C15888251D5E17A200200D34 /* BCEXRateUITests.swift */; };
 		C15888341D5E17DD00200D34 /* CoinDeskClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C15888331D5E17DD00200D34 /* CoinDeskClient.swift */; };
-		C15888381D5F2F4900200D34 /* GraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C15888371D5F2F4900200D34 /* GraphView.swift */; };
 		C1A6830E1D5F4F650013F769 /* Charts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1A6830D1D5F4F650013F769 /* Charts.framework */; };
 		C1A683101D5F4F6F0013F769 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1A6830F1D5F4F6F0013F769 /* Foundation.framework */; };
 		C1A683121D5F52E50013F769 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A683111D5F52E50013F769 /* Constants.swift */; };
@@ -57,7 +56,6 @@
 		C15888251D5E17A200200D34 /* BCEXRateUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BCEXRateUITests.swift; sourceTree = "<group>"; };
 		C15888271D5E17A200200D34 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C15888331D5E17DD00200D34 /* CoinDeskClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoinDeskClient.swift; sourceTree = "<group>"; };
-		C15888371D5F2F4900200D34 /* GraphView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GraphView.swift; sourceTree = "<group>"; };
 		C1A6830D1D5F4F650013F769 /* Charts.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Charts.framework; path = "../../../Library/Developer/Xcode/DerivedData/BCEXRate-fjgoplvbnpgiqudykqjyhtuvxbtr/Build/Products/Debug-iphonesimulator/Charts.framework"; sourceTree = "<group>"; };
 		C1A6830F1D5F4F6F0013F769 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		C1A683111D5F52E50013F769 /* Constants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
@@ -132,7 +130,6 @@
 				C158880E1D5E17A200200D34 /* LaunchScreen.storyboard */,
 				C15888111D5E17A200200D34 /* Info.plist */,
 				C15888331D5E17DD00200D34 /* CoinDeskClient.swift */,
-				C15888371D5F2F4900200D34 /* GraphView.swift */,
 				C1A683111D5F52E50013F769 /* Constants.swift */,
 			);
 			path = BCEXRate;
@@ -237,6 +234,7 @@
 				TargetAttributes = {
 					C15888011D5E17A200200D34 = {
 						CreatedOnToolsVersion = 7.3;
+						DevelopmentTeam = DME5MQMHQ6;
 					};
 					C15888151D5E17A200200D34 = {
 						CreatedOnToolsVersion = 7.3;
@@ -352,7 +350,6 @@
 				C15888341D5E17DD00200D34 /* CoinDeskClient.swift in Sources */,
 				C15888081D5E17A200200D34 /* ViewController.swift in Sources */,
 				C15888061D5E17A200200D34 /* AppDelegate.swift in Sources */,
-				C15888381D5F2F4900200D34 /* GraphView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -497,10 +494,13 @@
 			baseConfigurationReference = 989B2D65D221FE9D0017E361 /* Pods-BCEXRate.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = BCEXRate/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "-39.BCEXRate";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 			};
 			name = Debug;
 		};
@@ -509,10 +509,13 @@
 			baseConfigurationReference = 57011ED87AF662BFF33FCD50 /* Pods-BCEXRate.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = BCEXRate/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "-39.BCEXRate";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 			};
 			name = Release;
 		};

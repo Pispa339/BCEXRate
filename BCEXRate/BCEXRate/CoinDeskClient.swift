@@ -11,17 +11,16 @@ import Foundation
 class CoinDeskClient {
     
     let baseUrl:String = "https://api.coindesk.com/v1/bpi/"
-    let currencyParam:String = "?currency=EUR"
+    var currencyParam:String = "?currency=EUR"
     
-    func fetchLast28(completion: [String:Double] ->()) {
-        
+    //TODO: option to set currency
+    func fetchRange(fromDate: NSDate, toDate: NSDate, completion: [String:Double] ->()) {
+
         let dateFormatter = NSDateFormatter()
         dateFormatter.dateFormat = Constants.DateFormatForApi
         
-        let fromDate = NSDate().dateByAddingTimeInterval(-27*24*60*60)
+        //TODO: safeguards/input validation
         let fromDateString = dateFormatter.stringFromDate(fromDate)
-        
-        let toDate = NSDate().dateByAddingTimeInterval(-1*24*60*60)
         let toDateString:String = dateFormatter.stringFromDate(toDate)
         
         let paramsString = "historical/close.json?\(currencyParam)&start=\(fromDateString)&end=\(toDateString)"
@@ -30,21 +29,32 @@ class CoinDeskClient {
         
         let url:NSURL = NSURL(string: urlString)!
         
-        getRequestWithUrl(url, history: true) { bpis in
-            completion(bpis)
+        getRequestWithUrl(url, history: true) { data in
+            //completion(bpis)
+                let bpiData = data["bpi"] as? [String : Double]
+                completion(bpiData!)
         }
+    }
+    
+    func setCurrencyParam(currencyCode: String) {
+        currencyParam = "?currency=\(currencyCode)"
     }
     
     func fetchCurrent(completion: [String:Double] ->()) {
         let urlString = "\(baseUrl)currentprice/EUR.json?"
         let url:NSURL = NSURL(string: urlString)!
         
-        getRequestWithUrl(url, history: false) { rate in
-            completion(rate)
+        getRequestWithUrl(url, history: false) { data in
+            //completion(rate)
+            let bpiDict = data["bpi"] as? [String : AnyObject]
+            let eurBpiDict = bpiDict!["EUR"] as? [String : AnyObject]
+            let rate = eurBpiDict!["rate_float"] as! Double
+            let rateDict = ["rate_float" : rate]
+            completion(rateDict)
         }
     }
     
-    func getRequestWithUrl(url: NSURL, history: Bool, completion: [String:Double] ->()) {
+    func getRequestWithUrl(url: NSURL, history: Bool, completion: [String:AnyObject] ->()) {
         
         let session = NSURLSession.sharedSession()
         
@@ -64,19 +74,7 @@ class CoinDeskClient {
                     let json = try NSJSONSerialization.JSONObjectWithData(data!,
                                 options:NSJSONReadingOptions()) as? [String : AnyObject]
                     
-                    if(history) {
-                        let bpis = json!["bpi"] as? [String : Double]
-                        completion(bpis!)
-                    }
-                    else {
-                        let bpiDict = json!["bpi"] as? [String : AnyObject]
-                        let eurBpiDict = bpiDict!["EUR"] as? [String : AnyObject]
-                        let rate = eurBpiDict!["rate_float"] as! Double
-                        let rateDict = ["rate_float" : rate]
-                        completion(rateDict)
-                    }
-                    
-                    
+                    completion(json!)
                     
                 } catch {
                     print("Error fetching JSON")
@@ -85,13 +83,6 @@ class CoinDeskClient {
         }
         
         task.resume()
-    }
-    
-//    func getCurrenciesFromDict(dict: [String: AnyObject]) -> [String: String] {
-//        
-//        
-//        return dict
-//    }
-    
+    }    
     
 }

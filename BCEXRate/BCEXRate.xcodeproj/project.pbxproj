@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		69291B2151B1AF79F54FEA85 /* Pods_BCEXRate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 959639B7F969695F95F9F2FA /* Pods_BCEXRate.framework */; };
 		C15888061D5E17A200200D34 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C15888051D5E17A200200D34 /* AppDelegate.swift */; };
 		C15888081D5E17A200200D34 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C15888071D5E17A200200D34 /* ViewController.swift */; };
 		C158880B1D5E17A200200D34 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C15888091D5E17A200200D34 /* Main.storyboard */; };
@@ -16,9 +15,8 @@
 		C158881B1D5E17A200200D34 /* BCEXRateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C158881A1D5E17A200200D34 /* BCEXRateTests.swift */; };
 		C15888261D5E17A200200D34 /* BCEXRateUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C15888251D5E17A200200D34 /* BCEXRateUITests.swift */; };
 		C15888341D5E17DD00200D34 /* CoinDeskClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C15888331D5E17DD00200D34 /* CoinDeskClient.swift */; };
-		C1A6830E1D5F4F650013F769 /* Charts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1A6830D1D5F4F650013F769 /* Charts.framework */; };
-		C1A683101D5F4F6F0013F769 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1A6830F1D5F4F6F0013F769 /* Foundation.framework */; };
 		C1A683121D5F52E50013F769 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A683111D5F52E50013F769 /* Constants.swift */; };
+		C1DCE9E51D60B04A002B40DD /* Charts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1A6830D1D5F4F650013F769 /* Charts.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -66,9 +64,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C1A683101D5F4F6F0013F769 /* Foundation.framework in Frameworks */,
-				C1A6830E1D5F4F650013F769 /* Charts.framework in Frameworks */,
-				69291B2151B1AF79F54FEA85 /* Pods_BCEXRate.framework in Frameworks */,
+				C1DCE9E51D60B04A002B40DD /* Charts.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

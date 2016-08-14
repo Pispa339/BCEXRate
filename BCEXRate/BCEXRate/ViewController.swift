@@ -51,7 +51,7 @@ class ViewController: UIViewController, ChartViewDelegate {
         lineChartView.highlightPerTapEnabled = false;
         //lineChartView.chartfil
         
-        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(self.handlePanGesture(_:)))
+        let panGesture = UILongPressGestureRecognizer(target: self, action: #selector(self.handlePanGesture(_:)))
         lineChartView.addGestureRecognizer(panGesture)
         
         fetchAndShowData()
@@ -62,11 +62,11 @@ class ViewController: UIViewController, ChartViewDelegate {
         // Dispose of any resources that can be recreated.
     }
     
-    func chartValueSelected(chartView: ChartViewBase, entry: ChartDataEntry, dataSetIndex: Int, highlight: ChartHighlight) {
+//    func chartValueSelected(chartView: ChartViewBase, entry: ChartDataEntry, dataSetIndex: Int, highlight: ChartHighlight) {
 //        detailView.hidden = false
 //        valueDetailLabel.text = "\(graphValues[entry.xIndex])"
 //        dateDetailLabel.text = "\(graphDataPoints[entry.xIndex])"
-    }
+//    }
     
     func handlePanGesture(panGesture: UIPanGestureRecognizer) {
         if (panGesture.state == UIGestureRecognizerState.Ended) {
@@ -74,16 +74,20 @@ class ViewController: UIViewController, ChartViewDelegate {
         }
         else if (panGesture.state == UIGestureRecognizerState.Changed ||
                     panGesture.state == UIGestureRecognizerState.Began) {
-            
-            
-            //lineChartView.
-//            var closestXval
-            for entry in (lineChartView.data?.dataSets[0])! {
-                
-            }
+            //var chartwidth lineChartView.widt
             detailView.hidden = false
-//            valueDetailLabel.text = "\(graphValues[entry.xIndex])"
-//            dateDetailLabel.text = "\(graphDataPoints[entry.xIndex])"
+
+            let transformer = lineChartView.getTransformer(ChartYAxis.AxisDependency.Right)
+            var point = transformer.getValueByTouchPoint(panGesture.locationInView(lineChartView))
+            //transformer.pixelToValue(&point)
+            
+            let valueAsString:String = String(format:"%.2f", point.y)
+            
+            valueDetailLabel.text = valueAsString
+//            let dataset = self.lineChartView.data?.getDataSetByIndex(0)
+//            for test in dataset.entry {
+//                var position = CGFloat
+//            }
         }
     }
     
@@ -198,6 +202,7 @@ class ViewController: UIViewController, ChartViewDelegate {
         let lineChartDataSet = LineChartDataSet(yVals: dataEntries, label: "BPI")
 //        let backgroundGradient = createGradient(UIColor.grayColor(), endColor: UIColor.clearColor())
 //        lineChartView.backgroundColor = backgroundGradient
+        lineChartDataSet.circleRadius = 3.5
         
         let fillGradient = createGradient(UIColor.redColor(), endColor: UIColor.clearColor())
         lineChartDataSet.fill = ChartFill.fillWithLinearGradient(fillGradient, angle: 90.0) // Set the Gradient

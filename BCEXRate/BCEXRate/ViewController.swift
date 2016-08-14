@@ -45,12 +45,6 @@ class ViewController: UIViewController, ChartViewDelegate {
         
         populateGraphWithCachedData()
         
-        lineChartView.highlightPerDragEnabled = true;
-        lineChartView.pinchZoomEnabled = false;
-        //lineChartView.dragEnabled = false;
-        lineChartView.highlightPerTapEnabled = false;
-        //lineChartView.chartfil
-        
         let panGesture = UILongPressGestureRecognizer(target: self, action: #selector(self.handlePanGesture(_:)))
         lineChartView.addGestureRecognizer(panGesture)
         
@@ -81,13 +75,30 @@ class ViewController: UIViewController, ChartViewDelegate {
             var point = transformer.getValueByTouchPoint(panGesture.locationInView(lineChartView))
             //transformer.pixelToValue(&point)
             
+            var value = Double(point.y)
+            
+            //simple safeguards
+            if(value > lineChartView.data?.getYMax()) {
+                value = (lineChartView.data?.getYMax())!
+            }
+            else if(value < lineChartView.data?.getYMin()) {
+                value = (lineChartView.data?.getYMin())!
+            }
+            
             let valueAsString:String = String(format:"%.2f", point.y)
+            var dateIndex = Int(point.x)
+            
+            //dumb safeguards, don't have enough of time to implement better / more dynamic ones
+            if(dateIndex > 27) {
+                dateIndex = 27
+            }
+            else if(dateIndex < 0) {
+                dateIndex = 0
+            }
+            let dateAsString = graphDataPoints[dateIndex]
             
             valueDetailLabel.text = valueAsString
-//            let dataset = self.lineChartView.data?.getDataSetByIndex(0)
-//            for test in dataset.entry {
-//                var position = CGFloat
-//            }
+            dateDetailLabel.text = dateAsString
         }
     }
     
@@ -169,13 +180,22 @@ class ViewController: UIViewController, ChartViewDelegate {
             dataset?.addEntry(entry)
             self.graphValues[self.graphValues.count - 1] = valueToAdd!
             self.lineChartView.notifyDataSetChanged()
+            //the UIApplicationDidEnterBackgroundNotification doesn't seem to be reliable enough
+            //hence storing data after every update, which should not be neccessary
+            self.storeDataBeforeQuitting()
         }
     }
     
     func setUpAndPopulateChart(dataPoints: [String], values: [Double]) {
         
+        lineChartView.highlightPerDragEnabled = true;
+        lineChartView.pinchZoomEnabled = false;
+        lineChartView.dragEnabled = false;
+        lineChartView.highlightPerTapEnabled = false;
+        lineChartView.drawMarkers = false;
         lineChartView.autoScaleMinMaxEnabled = true;
         lineChartView.descriptionText = "BPI's of the last 28 days"
+        
         if(lineChartView.isEmpty()) {
             lineChartView.animate(xAxisDuration: 2.0, yAxisDuration: 2.0)
         }
@@ -187,24 +207,13 @@ class ViewController: UIViewController, ChartViewDelegate {
             dataEntries.append(dataEntry)
         }
         
-        var colors: [UIColor] = []
-        
-        for _ in 0..<dataPoints.count {
-            let red = Double(arc4random_uniform(256))
-            let green = Double(arc4random_uniform(256))
-            let blue = Double(arc4random_uniform(256))
-            
-            let color = UIColor(red: CGFloat(red/255), green: CGFloat(green/255), blue: CGFloat(blue/255), alpha: 1)
-            colors.append(color)
-        }
-        
-        
         let lineChartDataSet = LineChartDataSet(yVals: dataEntries, label: "BPI")
-//        let backgroundGradient = createGradient(UIColor.grayColor(), endColor: UIColor.clearColor())
-//        lineChartView.backgroundColor = backgroundGradient
-        lineChartDataSet.circleRadius = 3.5
         
-        let fillGradient = createGradient(UIColor.redColor(), endColor: UIColor.clearColor())
+        lineChartDataSet.circleRadius = 3.5
+        lineChartDataSet.setCircleColor(UIColor.darkGrayColor())
+        lineChartDataSet.setColor(UIColor.grayColor().colorWithAlphaComponent(0.7))
+        
+        let fillGradient = createGradient(UIColor.purpleColor(), endColor: UIColor.clearColor())
         lineChartDataSet.fill = ChartFill.fillWithLinearGradient(fillGradient, angle: 90.0) // Set the Gradient
         lineChartDataSet.drawFilledEnabled = true
         let lineChartData = LineChartData(xVals: dataPoints, dataSet: lineChartDataSet)
@@ -216,8 +225,8 @@ class ViewController: UIViewController, ChartViewDelegate {
     }
     
     func createGradient(startColor: UIColor, endColor: UIColor) -> CGGradient {
-        let gradientColors = [startColor.CGColor, endColor.CGColor] // Colors of the gradient
-        let colorLocations:[CGFloat] = [1.0, 0.0] // Positioning of the gradient
+        let gradientColors = [startColor.CGColor, endColor.CGColor]
+        let colorLocations:[CGFloat] = [1.0, 0.0]
         let gradient = CGGradientCreateWithColors(CGColorSpaceCreateDeviceRGB(), gradientColors, colorLocations)
         return gradient!
     }

@@ -13,7 +13,7 @@ class CoinDeskClient {
     let baseUrl:String = "https://api.coindesk.com/v1/bpi/"
     var currencyParam:String = "?currency=EUR"
     
-    //TODO: option to set currency
+    //fetches historical data for the desired date range
     func fetchRange(fromDate: NSDate, toDate: NSDate, completion: [String:Double] ->()) {
 
         let dateFormatter = NSDateFormatter()
@@ -30,9 +30,8 @@ class CoinDeskClient {
         let url:NSURL = NSURL(string: urlString)!
         
         getRequestWithUrl(url, history: true) { data in
-            //completion(bpis)
-                let bpiData = data["bpi"] as? [String : Double]
-                completion(bpiData!)
+            let bpiData = data["bpi"] as? [String : Double]
+            completion(bpiData!)
         }
     }
     
@@ -40,6 +39,7 @@ class CoinDeskClient {
         currencyParam = "?currency=\(currencyCode)"
     }
     
+    //fetches current exchange rate
     func fetchCurrent(completion: [String:Double] ->()) {
         let urlString = "\(baseUrl)currentprice/EUR.json?"
         let url:NSURL = NSURL(string: urlString)!
@@ -54,6 +54,7 @@ class CoinDeskClient {
         }
     }
     
+    //semi-general GET-request function for fetching exchange rate data
     func getRequestWithUrl(url: NSURL, history: Bool, completion: [String:AnyObject] ->()) {
         
         let session = NSURLSession.sharedSession()

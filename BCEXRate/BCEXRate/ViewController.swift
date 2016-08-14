@@ -33,20 +33,20 @@ class ViewController: UIViewController, ChartViewDelegate {
         super.viewDidLoad()
         
         fetchingActivityIndicator.startAnimating()
-        
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.storeDataBeforeQuitting), name: UIApplicationDidEnterBackgroundNotification, object: nil)
-
-        lineChartView.delegate = self
         detailView.layer.cornerRadius = 8.0
         
-        // Do any additional setup after loading the view, typically from a nib.
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.cacheDataToDefaults), name: UIApplicationDidEnterBackgroundNotification, object: nil)
+
+        lineChartView.delegate = self
+        
         lineChartView.noDataText = "No data to show"
         lineChartView.noDataTextDescription = "Fetching data from the server..."
         
         populateGraphWithCachedData()
         
-        let panGesture = UILongPressGestureRecognizer(target: self, action: #selector(self.handlePanGesture(_:)))
-        lineChartView.addGestureRecognizer(panGesture)
+        //Own implementation of longPressGesture
+        let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(self.handleLongPressGesture(_:)))
+        lineChartView.addGestureRecognizer(longPressGesture)
         
         fetchAndShowData()
     }
@@ -56,24 +56,24 @@ class ViewController: UIViewController, ChartViewDelegate {
         // Dispose of any resources that can be recreated.
     }
     
-//    func chartValueSelected(chartView: ChartViewBase, entry: ChartDataEntry, dataSetIndex: Int, highlight: ChartHighlight) {
-//        detailView.hidden = false
-//        valueDetailLabel.text = "\(graphValues[entry.xIndex])"
-//        dateDetailLabel.text = "\(graphDataPoints[entry.xIndex])"
-//    }
-    
-    func handlePanGesture(panGesture: UIPanGestureRecognizer) {
-        if (panGesture.state == UIGestureRecognizerState.Ended) {
+    /* 
+     * Own implementation of longPressGestureHandler, since readymade gesture
+     * recognizers weren't suitable for this use-case.
+     * Shows the details of a point in graph when pressed
+     */
+    func handleLongPressGesture(longPressGesture: UIPanGestureRecognizer) {
+        
+        if (longPressGesture.state == UIGestureRecognizerState.Ended) {
             detailView.hidden = true
         }
-        else if (panGesture.state == UIGestureRecognizerState.Changed ||
-                    panGesture.state == UIGestureRecognizerState.Began) {
-            //var chartwidth lineChartView.widt
+        else if (longPressGesture.state == UIGestureRecognizerState.Changed ||
+                    longPressGesture.state == UIGestureRecognizerState.Began) {
             detailView.hidden = false
 
             let transformer = lineChartView.getTransformer(ChartYAxis.AxisDependency.Right)
-            var point = transformer.getValueByTouchPoint(panGesture.locationInView(lineChartView))
-            //transformer.pixelToValue(&point)
+            
+            //transforms the current touchPoint to values in chart
+            let point = transformer.getValueByTouchPoint(longPressGesture.locationInView(lineChartView))
             
             var value = Double(point.y)
             
@@ -102,15 +102,11 @@ class ViewController: UIViewController, ChartViewDelegate {
         }
     }
     
-    func chartValueNothingSelected(chartView: ChartViewBase) {
-        detailView.hidden = true
-    }
-    
     func startPollingCurrent() {
         NSTimer.scheduledTimerWithTimeInterval(10, target: self, selector: #selector(self.fetchAndUpdateCurrent), userInfo: nil, repeats: true)
     }
     
-    func storeDataBeforeQuitting() {
+    func cacheDataToDefaults() {
         let defaults = NSUserDefaults.standardUserDefaults()
         defaults.setObject(self.graphValues, forKey: valuesCacheKey)
         defaults.setObject(self.graphDataPoints, forKey: dataPointsCacheKey)
@@ -131,20 +127,27 @@ class ViewController: UIViewController, ChartViewDelegate {
     }
     
     func fetchAndShowData() {
+        //parameter/input dates, hardcoded for this use-case
         let fromDate = NSDate().dateByAddingTimeInterval(-27*24*60*60)
         let toDate = NSDate().dateByAddingTimeInterval(-1*24*60*60)
 
         graphValues = [Double]()
         graphDataPoints = [String]()
         
+        //fetch the historical datab of previous 27 days
         cdClient.fetchRange(fromDate, toDate: toDate) { bpis in
+            
+            /*
+             * Need to sort the keys to have them in the correct order for the graph
+             * since API doesn't return the values in the needed order
+             */
             let sortedKeys = Array(bpis.keys).sort(<)
             
             for key in sortedKeys {
                 self.graphValues.append(bpis[key]!)
             }
             
-            //make the dateformat more suitable for graph's use
+            //make the dateformat more suitable/readable for graph's use
             let dateFormatter = NSDateFormatter()
             for dateString in sortedKeys {
                 dateFormatter.dateFormat = Constants.DateFormatForApi
@@ -155,7 +158,7 @@ class ViewController: UIViewController, ChartViewDelegate {
                 self.graphDataPoints.append(newDateString)
             }
             
-            //add todays data as well
+            // fetch and add todays data as well
             self.cdClient.fetchCurrent() { rate in
                 let thisDateString = dateFormatter.stringFromDate(NSDate())
                 self.graphDataPoints.append(thisDateString)
@@ -163,6 +166,7 @@ class ViewController: UIViewController, ChartViewDelegate {
                 
                 self.setUpAndPopulateChart(self.graphDataPoints, values: self.graphValues)
                 
+                //start polling/updating current value
                 if(!self.pollingTimer.valid) {
                     self.startPollingCurrent()
                 }
@@ -182,24 +186,33 @@ class ViewController: UIViewController, ChartViewDelegate {
             self.lineChartView.notifyDataSetChanged()
             //the UIApplicationDidEnterBackgroundNotification doesn't seem to be reliable enough
             //hence storing data after every update, which should not be neccessary
-            self.storeDataBeforeQuitting()
+            self.cacheDataToDefaults()
+//            let valueToAdd = rate["rate_float"]
+//            self.graphValues.removeLast()
+//            self.graphValues.append(valueToAdd!)
+//            self.setUpAndPopulateChart(self.graphDataPoints, values: self.graphValues)
         }
     }
     
+    //wouldn't really need parameters in this implementation, but makes it more general
     func setUpAndPopulateChart(dataPoints: [String], values: [Double]) {
         
+        //setup charts behaviour
         lineChartView.highlightPerDragEnabled = true;
         lineChartView.pinchZoomEnabled = false;
         lineChartView.dragEnabled = false;
         lineChartView.highlightPerTapEnabled = false;
         lineChartView.drawMarkers = false;
+        //This doesn't seem to be working when updating data
         lineChartView.autoScaleMinMaxEnabled = true;
         lineChartView.descriptionText = "BPI's of the last 28 days"
         
+        //animate only on launch
         if(lineChartView.isEmpty()) {
             lineChartView.animate(xAxisDuration: 2.0, yAxisDuration: 2.0)
         }
         
+        //init data for graph from fetched data
         var dataEntries: [ChartDataEntry] = []
         
         for i in 0..<dataPoints.count {
@@ -207,6 +220,7 @@ class ViewController: UIViewController, ChartViewDelegate {
             dataEntries.append(dataEntry)
         }
         
+        //init the look of the dataset
         let lineChartDataSet = LineChartDataSet(yVals: dataEntries, label: "BPI")
         
         lineChartDataSet.circleRadius = 3.5
@@ -216,8 +230,10 @@ class ViewController: UIViewController, ChartViewDelegate {
         let fillGradient = createGradient(UIColor.purpleColor(), endColor: UIColor.clearColor())
         lineChartDataSet.fill = ChartFill.fillWithLinearGradient(fillGradient, angle: 90.0) // Set the Gradient
         lineChartDataSet.drawFilledEnabled = true
+        
         let lineChartData = LineChartData(xVals: dataPoints, dataSet: lineChartDataSet)
         lineChartView.data = lineChartData
+        
         dispatch_async(dispatch_get_main_queue()) {
             self.fetchingActivityIndicator.stopAnimating()
         }

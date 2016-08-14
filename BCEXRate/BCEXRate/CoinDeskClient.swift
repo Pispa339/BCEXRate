@@ -29,7 +29,7 @@ class CoinDeskClient {
         
         let url:NSURL = NSURL(string: urlString)!
         
-        getRequestWithUrl(url, history: true) { data in
+        getRequestWithUrl(url) { data in
             let bpiData = data["bpi"] as? [String : Double]
             completion(bpiData!)
         }
@@ -44,18 +44,22 @@ class CoinDeskClient {
         let urlString = "\(baseUrl)currentprice/EUR.json?"
         let url:NSURL = NSURL(string: urlString)!
         
-        getRequestWithUrl(url, history: false) { data in
+        getRequestWithUrl(url) { data in
             //completion(rate)
             let bpiDict = data["bpi"] as? [String : AnyObject]
             let eurBpiDict = bpiDict!["EUR"] as? [String : AnyObject]
             let rate = eurBpiDict!["rate_float"] as! Double
-            let rateDict = ["rate_float" : rate]
+            let rateDict = [Constants.RateDictKey : rate]
             completion(rateDict)
         }
     }
     
-    //semi-general GET-request function for fetching exchange rate data
-    func getRequestWithUrl(url: NSURL, history: Bool, completion: [String:AnyObject] ->()) {
+    /* 
+     * Semi-general GET-request function for fetching exchange rate data
+     * Would need better exception handling and more effort on robustness,
+     * but the time is running out
+     */
+    func getRequestWithUrl(url: NSURL, completion: [String:AnyObject] ->()) {
         
         let session = NSURLSession.sharedSession()
         

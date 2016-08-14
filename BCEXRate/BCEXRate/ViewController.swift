@@ -162,7 +162,7 @@ class ViewController: UIViewController, ChartViewDelegate {
             self.cdClient.fetchCurrent() { rate in
                 let thisDateString = dateFormatter.stringFromDate(NSDate())
                 self.graphDataPoints.append(thisDateString)
-                self.graphValues.append(rate["rate_float"]!)
+                self.graphValues.append(rate[Constants.RateDictKey]!)
                 
                 self.setUpAndPopulateChart(self.graphDataPoints, values: self.graphValues)
                 
@@ -187,6 +187,8 @@ class ViewController: UIViewController, ChartViewDelegate {
             //the UIApplicationDidEnterBackgroundNotification doesn't seem to be reliable enough
             //hence storing data after every update, which should not be neccessary
             self.cacheDataToDefaults()
+            
+            //tried another way to prevent the scaling issua when updating, didn't work either
 //            let valueToAdd = rate["rate_float"]
 //            self.graphValues.removeLast()
 //            self.graphValues.append(valueToAdd!)

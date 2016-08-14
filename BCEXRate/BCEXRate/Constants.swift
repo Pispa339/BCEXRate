@@ -10,4 +10,5 @@ import Foundation
 
 struct Constants {
     static let DateFormatForApi = "yyyy-MM-dd"
+    static let RateDictKey = "rate_double"
 }

@@ -75,30 +75,34 @@ class ViewController: UIViewController, ChartViewDelegate {
             //transforms the current touchPoint to values in chart
             let point = transformer.getValueByTouchPoint(longPressGesture.locationInView(lineChartView))
             
-            var value = Double(point.y)
+//            var value = Double(point.y)
+//            
+//            //simple safeguards
+//            if(value > lineChartView.data?.getYMax()) {
+//                value = (lineChartView.data?.getYMax())!
+//            }
+//            else if(value < lineChartView.data?.getYMin()) {
+//                value = (lineChartView.data?.getYMin())!
+//            }
+//            
+//            let valueAsString:String = String(format:"%.2f", point.y)
             
-            //simple safeguards
-            if(value > lineChartView.data?.getYMax()) {
-                value = (lineChartView.data?.getYMax())!
-            }
-            else if(value < lineChartView.data?.getYMin()) {
-                value = (lineChartView.data?.getYMin())!
-            }
-            
-            let valueAsString:String = String(format:"%.2f", point.y)
-            var dateIndex = Int(point.x)
+            var xIndex = Int(point.x)
             
             //dumb safeguards, don't have enough of time to implement better / more dynamic ones
-            if(dateIndex > 27) {
-                dateIndex = 27
+            if(xIndex > 27) {
+                xIndex = 27
             }
-            else if(dateIndex < 0) {
-                dateIndex = 0
+            else if(xIndex < 0) {
+                xIndex = 0
             }
-            let dateAsString = graphDataPoints[dateIndex]
             
-            valueDetailLabel.text = valueAsString
-            dateDetailLabel.text = dateAsString
+            let dateAsString =  graphDataPoints[xIndex]
+            let value = graphValues[xIndex]
+            let valueAsString:String = String(format:"%.2f", value)
+            
+            valueDetailLabel.text = "Value: \(valueAsString)"
+            dateDetailLabel.text = "Date: \(dateAsString)"
         }
     }
     

@@ -178,6 +178,11 @@ class ViewController: UIViewController, ChartViewDelegate {
         }
     }
     
+    /* 
+     * Updating doesn't re-scale the chart. If the updated value is out of
+     * the range of oiriginal chart, it will be shown outside the chart.
+     * This probably wouldn't have happened with bar chart, but too late to change it now
+     */
     func fetchAndUpdateCurrent() {
         cdClient.fetchCurrent() { rate in
             let dataset = self.lineChartView.data?.getDataSetByIndex(0)
@@ -188,6 +193,7 @@ class ViewController: UIViewController, ChartViewDelegate {
             dataset?.addEntry(entry)
             self.graphValues[self.graphValues.count - 1] = valueToAdd!
             self.lineChartView.notifyDataSetChanged()
+            //self.lineChartView.zoomOut()
             //the UIApplicationDidEnterBackgroundNotification doesn't seem to be reliable enough
             //hence storing data after every update, which should not be neccessary
             self.cacheDataToDefaults()
@@ -211,6 +217,7 @@ class ViewController: UIViewController, ChartViewDelegate {
         lineChartView.drawMarkers = false;
         //This doesn't seem to be working when updating data
         lineChartView.autoScaleMinMaxEnabled = true;
+        lineChartView.drawGridBackgroundEnabled = false;
         lineChartView.descriptionText = "BPI's of the last 28 days"
         
         //animate only on launch
